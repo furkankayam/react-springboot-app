@@ -1,52 +1,51 @@
-#FROM openjdk:17-jdk-slim-buster AS builder
+# ---- Build Stage ----
+FROM gradle:8.3-jdk17 AS build
 
-#RUN apt-get update -y
-#RUN apt-get install -y binutils
+### Build arguments ###
+ARG JAR_FILE=build/libs/*.jar
+ARG APP_DIR=/usr/local/app
+ARG APP_PROFILE
+ARG GCP_SA_KEY_PATH
+ARG GCP_ACCESS_TOKEN
+ARG GCP_PROJECT_ID
+ARG BQ_DATASET
+ARG BQ_TABLE
+###
 
-#WORKDIR /app
+### Environment variables ###
+# OS
+ENV APP_DIR=${APP_DIR}
+# JVM arguments.
+ENV APP_PROFILE=${APP_PROFILE}
+ENV GCP_SA_KEY_PATH=${GCP_SA_KEY_PATH}
+ENV GOOGLE_APPLICATION_CREDENTIALS=${GCP_SA_KEY_PATH}
+ENV GCP_ACCESS_TOKEN=${GCP_ACCESS_TOKEN}
+ENV GCP_PROJECT_ID=${GCP_PROJECT_ID}
+ENV BQ_DATASET=${BQ_DATASET}
+ENV BQ_TABLE=${BQ_TABLE}
+###
 
-#COPY . .
+# Set working directory
+WORKDIR /app
 
-#RUN ./gradlew build -i --stacktrace -x test
-#RUN ./gradlew jlink -i --stacktrace
+# Copy the source code
+COPY . .
 
-# lightweight image
-#FROM openjdk:17-jdk-slim
+# Build the application
+RUN gradle clean bootJar
 
-#COPY --from=builder /app/app/build/image /app
-
-#ENTRYPOINT /app/bin/app
-
-#FROM openjdk:17-jdk-slim AS builder
-#WORKDIR /workspace/app
-
-#COPY gradlew .
-#COPY gradle gradle
-#COPY build.gradle .
-#RUN ./gradlew dependencies
-
-#COPY src src
-#RUN ./gradlew build unpack -x test
-#RUN mkdir -p build/dependency && (cd build/dependency; jar -xf ../libs/*.jar)
-
-#FROM openjdk:17-jdk-slim
-#VOLUME /tmp
-#ARG DEPENDENCY=/workspace/app/build/dependency
-#COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
-#COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
-#COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
-#ENTRYPOINT ["java","-cp","app:app/lib/*","com.react_springboot_app.ReactSpringbootAppApplication"]
-
-FROM openjdk:17-jdk-slim AS builder
-WORKDIR /workspace/app
-
-COPY gradlew .
-COPY gradle gradle
-COPY build.gradle .
-COPY src src
-RUN ./gradlew build -x test
-
+# ---- Run Stage ----
 FROM openjdk:17-jdk-slim
-VOLUME /tmp
-COPY --from=builder /workspace/app/build/libs/*.jar /app/app.jar
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+
+# Set application port
+EXPOSE 8080
+
+# Set working directory
+WORKDIR /app
+
+# Copy the executable jar from the build stage
+COPY --from=build /app/build/libs/*.jar app.jar
+
+# Run the application
+CMD ["java", "-jar", "app.jar"]
+
