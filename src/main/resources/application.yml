@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  # Banner
+  banner:
+    location: Banner.txt
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/basic_app}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        show_sql: true
+        type:
+          wrapper_array_handling: ALLOW
+    database: postgresql
+
+# Project Description
+application:
+  title: 'react-springboot-app-backend'
+  version: 'v0.1'
+
+# Open API
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
