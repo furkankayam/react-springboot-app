@@ -1,5 +1,5 @@
 # ---- Build Stage ----
-FROM gradle:8.3-jdk17 AS build
+FROM gradle:8.3.0-jdk17 AS build
 
 ### Build arguments ###
 ARG JAR_FILE=build/libs/*.jar
