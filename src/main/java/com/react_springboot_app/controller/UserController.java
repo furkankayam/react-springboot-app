@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 @Tag(name = "Basic App")
+@CrossOrigin("*")
 public class UserController {
 
     private final UserService userService;
