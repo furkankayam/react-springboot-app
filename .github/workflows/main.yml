@@ -40,5 +40,5 @@ jobs:
           context: .
           dockerfile: Dockerfile
           # Pushlama yapsin mi
-          push: true
+          push: false
           tags: ${{ secrets.GD_TOKEN_USERNAME }}/myapp:0.1.0
