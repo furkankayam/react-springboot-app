@@ -1,0 +1,44 @@
+name: Spring Boot Project CI/CD Pipeline
+
+# Actionlar github marketplace
+
+en:
+  push:
+    branches:
+      - master
+    
+jobs:
+  build-java-app:
+    name: Build and Deploy Spring Boot App
+    runs-on: ubuntu-latest
+    steps:
+      # Ilk adim her zaman
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup JDK 17
+        uses: action/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: 17
+
+      - name: Build App
+        run: |
+          ./gradlew build
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+
+        # Tokeni elle github reposuna girecegiz
+        with:
+          username: ${{ secrets.GD_TOKEN_USERNAME }}
+          password: ${{ secrets.GD_TOKEN }}
+
+      - name: Build and Push
+        uses: docker/build-push@v4
+        with:
+          context: .
+          dockerfile: Dockerfile
+          # Pushlama yapsin mi
+          push: true
+          tags: ${{ secrets.GD_TOKEN_USERNAME }}/myapp:0.1.0
