@@ -2,7 +2,7 @@ name: Spring Boot Project CI/CD Pipeline
 
 # Actionlar github marketplace
 
-en:
+on:
   push:
     branches:
       - master
